@@ -43,13 +43,24 @@ model User {
   @@map("tb_user")
 }
 
-model Tarif {
-  id_tarif        Int      @id @default(autoincrement())
-  jenis_kendaraan String   @unique @db.VarChar(30)
-  tarif_per_jam   Decimal  @db.Decimal(10, 0)
-  updated_at      DateTime @updatedAt
+model JenisKendaraan {
+  id_jenis   Int    @id @default(autoincrement())
+  nama_jenis String @unique @db.VarChar(30)
 
-  transaksi Transaksi[]
+  kendaraan Kendaraan[]
+  tarif     Tarif?
+
+  @@map("tb_jenis_kendaraan")
+}
+
+model Tarif {
+  id_tarif      Int      @id @default(autoincrement())
+  id_jenis      Int      @unique
+  tarif_per_jam Decimal  @db.Decimal(10, 0)
+  updated_at    DateTime @updatedAt
+
+  jenis      JenisKendaraan @relation(fields: [id_jenis], references: [id_jenis], onDelete: Restrict)
+  transaksi  Transaksi[]
 
   @@map("tb_tarif")
 }
@@ -68,16 +79,18 @@ model AreaParkir {
 }
 
 model Kendaraan {
-  id_kendaraan    Int     @id @default(autoincrement())
-  plat_nomor      String  @unique @db.VarChar(15)
-  jenis_kendaraan String  @db.VarChar(20)
-  warna           String? @db.VarChar(20)
-  pemilik         String? @db.VarChar(100)
-  id_user         Int?
+  id_kendaraan Int     @id @default(autoincrement())
+  plat_nomor   String  @unique @db.VarChar(15)
+  id_jenis     Int
+  warna        String? @db.VarChar(20)
+  pemilik      String? @db.VarChar(100)
+  id_user      Int?
 
-  user      User?       @relation(fields: [id_user], references: [id_user], onDelete: SetNull)
+  jenis     JenisKendaraan @relation(fields: [id_jenis], references: [id_jenis], onDelete: Restrict)
+  user      User?          @relation(fields: [id_user], references: [id_user], onDelete: SetNull)
   transaksi Transaksi[]
 
+  @@index([id_jenis])
   @@map("tb_kendaraan")
 }
 

@@ -8,6 +8,8 @@ import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { UsersModule } from './users/users.module.js';
+import { TarifModule } from './tarif/tarif.module.js';
+import { JenisKendaraanModule } from './jenis-kendaraan/jenis-kendaraan.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -24,6 +26,8 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     PrismaModule,
     AuthModule,
     UsersModule,
+    TarifModule,
+    JenisKendaraanModule,
   ],
   controllers: [AppController],
   providers: [AppService],

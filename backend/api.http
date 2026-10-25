@@ -1,7 +1,9 @@
-
 @baseUrl = http://localhost:3000
 
-### 1. Login sebagai admin
+### ==========================================
+### 1. LOGIN ADMIN
+### ==========================================
+
 # @name login
 POST {{baseUrl}}/auth/login
 Content-Type: application/json
@@ -15,7 +17,11 @@ Content-Type: application/json
 
 @token = {{login.response.body.access_token}}
 
-### 2. Buat user petugas
+### ==========================================
+### 2. CRUD USER
+### ==========================================
+
+### 2.1 Buat user petugas 01
 POST {{baseUrl}}/users
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -30,6 +36,7 @@ Content-Type: application/json
 
 ###
 
+### 2.2 Buat user petugas 02
 POST {{baseUrl}}/users
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -42,19 +49,21 @@ Content-Type: application/json
   "status_aktif": true
 }
 
-### 3. Lihat semua user
+###
+
+### 2.3 Lihat semua user
 GET {{baseUrl}}/users
 Authorization: Bearer {{token}}
 
 ###
 
-### 4. Lihat user berdasarkan ID
+### 2.4 Lihat user berdasarkan ID
 GET {{baseUrl}}/users/3
 Authorization: Bearer {{token}}
 
 ###
 
-### 5. Update data user
+### 2.5 Update data user
 PATCH {{baseUrl}}/users/3
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -65,7 +74,7 @@ Content-Type: application/json
 
 ###
 
-### 6. Nonaktifkan user
+### 2.6 Nonaktifkan user
 PATCH {{baseUrl}}/users/3/status
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -74,7 +83,135 @@ Content-Type: application/json
   "status_aktif": false
 }
 
+###
 
-### Hapus user permanen
+### 2.7 Hapus user permanen
 DELETE {{baseUrl}}/users/3
+Authorization: Bearer {{token}}
+
+###
+
+### ==========================================
+### 3. CRUD JENIS KENDARAAN
+### ==========================================
+
+### 3.1 Lihat semua jenis kendaraan
+GET {{baseUrl}}/jenis-kendaraan
+Authorization: Bearer {{token}}
+
+###
+
+### 3.2 Tambah jenis kendaraan - Motor
+POST {{baseUrl}}/jenis-kendaraan
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nama_jenis": "Motor"
+}
+
+###
+
+### 3.3 Tambah jenis kendaraan - Mobil
+POST {{baseUrl}}/jenis-kendaraan
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nama_jenis": "Mobil"
+}
+
+###
+
+### 3.4 Lihat jenis kendaraan berdasarkan ID
+GET {{baseUrl}}/jenis-kendaraan/1
+Authorization: Bearer {{token}}
+
+###
+
+### 3.5 Update jenis kendaraan
+PATCH {{baseUrl}}/jenis-kendaraan/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nama_jenis": "Sepeda Motor"
+}
+
+###
+
+DELETE {{baseUrl}}/jenis-kendaraan/1
+Authorization: Bearer {{token}}
+
+### ==========================================
+### 4. CRUD TARIF
+### ==========================================
+
+### 4.1 Lihat semua tarif
+GET {{baseUrl}}/tarif
+Authorization: Bearer {{token}}
+
+###
+
+### 4.2 Lihat tarif berdasarkan ID
+GET {{baseUrl}}/tarif/2
+Authorization: Bearer {{token}}
+
+###
+
+### 4.3 Tambah tarif kendaraan
+POST {{baseUrl}}/tarif
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "id_jenis": 3,
+  "tarif_per_jam": 3000
+}
+
+###
+
+### 4.4 Update tarif kendaraan
+PATCH {{baseUrl}}/tarif/2
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tarif_per_jam": 4000
+}
+
+###
+
+### 4.5 Tes tarif dengan ID jenis kendaraan tidak valid
+POST {{baseUrl}}/tarif
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "id_jenis": 999999,
+  "tarif_per_jam": 3000
+}
+
+###
+
+### 4.6 Tes tarif duplikat untuk jenis kendaraan yang sama
+POST {{baseUrl}}/tarif
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "id_jenis": 3,
+  "tarif_per_jam": 5000
+}
+
+###
+
+### 4.7 Hapus tarif kendaraan
+DELETE {{baseUrl}}/tarif/2
+Authorization: Bearer {{token}}
+
+###
+
+### 4.8 Hapus jenis kendaraan
+DELETE {{baseUrl}}/jenis-kendaraan/3
 Authorization: Bearer {{token}}
