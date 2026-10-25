@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  admin
+  petugas
+  owner
+}
+
+enum StatusTransaksi {
+  masuk
+  keluar
+}
+
+enum MetodePembayaran {
+  tunai
+  non_tunai
+}
+
+enum StatusPembayaran {
+  belum_bayar
+  lunas
+}
+
+model User {
+  id_user      Int     @id @default(autoincrement())
+  nama_lengkap String  @db.VarChar(50)
+  username     String  @unique @db.VarChar(50)
+  password     String  @db.VarChar(100)
+  role         Role
+  status_aktif Boolean @default(true)
+
+  kendaraan     Kendaraan[]
+  transaksi     Transaksi[]
+  log_aktivitas LogAktivitas[]
+
+  @@map("tb_user")
+}
+
+model Tarif {
+  id_tarif        Int      @id @default(autoincrement())
+  jenis_kendaraan String   @unique @db.VarChar(30)
+  tarif_per_jam   Decimal  @db.Decimal(10, 0)
+  updated_at      DateTime @updatedAt
+
+  transaksi Transaksi[]
+
+  @@map("tb_tarif")
+}
+
+model AreaParkir {
+  id_area   Int    @id @default(autoincrement())
+  nama_area String @db.VarChar(50)
+  kapasitas Int
+  terisi    Int    @default(0)
+
+  updated_at DateTime @updatedAt
+
+  transaksi Transaksi[]
+
+  @@map("tb_area_parkir")
+}
+
+model Kendaraan {
+  id_kendaraan    Int     @id @default(autoincrement())
+  plat_nomor      String  @unique @db.VarChar(15)
+  jenis_kendaraan String  @db.VarChar(20)
+  warna           String? @db.VarChar(20)
+  pemilik         String? @db.VarChar(100)
+  id_user         Int?
+
+  user      User?       @relation(fields: [id_user], references: [id_user], onDelete: SetNull)
+  transaksi Transaksi[]
+
+  @@map("tb_kendaraan")
+}
+
+model Transaksi {
+  id_transaksi   Int    @id @default(autoincrement())
+  kode_transaksi String @unique @db.VarChar(50)
+  id_kendaraan   Int
+
+  waktu_masuk  DateTime  @default(now())
+  waktu_keluar DateTime?
+
+  id_tarif Int
+  id_user  Int
+  id_area  Int
+
+  tarif_per_jam_snapshot Decimal @db.Decimal(10, 0)
+  durasi_jam             Int     @default(0)
+  biaya_total            Decimal @default(0) @db.Decimal(10, 0)
+
+  status            StatusTransaksi   @default(masuk)
+  metode_pembayaran MetodePembayaran?
+  status_pembayaran StatusPembayaran  @default(belum_bayar)
+  jumlah_bayar      Decimal?          @db.Decimal(10, 0)
+  kembalian         Decimal?          @db.Decimal(10, 0)
+
+  kendaraan Kendaraan  @relation(fields: [id_kendaraan], references: [id_kendaraan])
+  tarif     Tarif      @relation(fields: [id_tarif], references: [id_tarif])
+  user      User       @relation(fields: [id_user], references: [id_user])
+  area      AreaParkir @relation(fields: [id_area], references: [id_area])
+
+  updated_at DateTime @updatedAt
+
+  @@index([status, id_area])
+  @@index([id_kendaraan, status])
+  @@index([waktu_masuk])
+  @@map("tb_transaksi")
+}
+
+model LogAktivitas {
+  id_log          Int      @id @default(autoincrement())
+  id_user         Int
+  aktivitas       String   @db.VarChar(100)
+  waktu_aktivitas DateTime @default(now())
+
+  user User @relation(fields: [id_user], references: [id_user], onDelete: Cascade)
+
+  @@map("tb_log_aktivitas")
+}

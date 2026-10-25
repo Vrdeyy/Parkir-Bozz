@@ -1,0 +1,80 @@
+
+@baseUrl = http://localhost:3000
+
+### 1. Login sebagai admin
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "obatkuat1234"
+}
+
+###
+
+@token = {{login.response.body.access_token}}
+
+### 2. Buat user petugas
+POST {{baseUrl}}/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nama_lengkap": "Petugas Parkir",
+  "username": "petugas01",
+  "password": "PasswordPetugas123",
+  "role": "petugas",
+  "status_aktif": true
+}
+
+###
+
+POST {{baseUrl}}/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nama_lengkap": "Petugas Parkir",
+  "username": "petugas02",
+  "password": "PasswordPetugas123",
+  "role": "petugas",
+  "status_aktif": true
+}
+
+### 3. Lihat semua user
+GET {{baseUrl}}/users
+Authorization: Bearer {{token}}
+
+###
+
+### 4. Lihat user berdasarkan ID
+GET {{baseUrl}}/users/3
+Authorization: Bearer {{token}}
+
+###
+
+### 5. Update data user
+PATCH {{baseUrl}}/users/3
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nama_lengkap": "Petugas Parkir Updated"
+}
+
+###
+
+### 6. Nonaktifkan user
+PATCH {{baseUrl}}/users/3/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status_aktif": false
+}
+
+
+### Hapus user permanen
+DELETE {{baseUrl}}/users/3
+Authorization: Bearer {{token}}
