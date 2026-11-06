@@ -215,3 +215,198 @@ Authorization: Bearer {{token}}
 ### 4.8 Hapus jenis kendaraan
 DELETE {{baseUrl}}/jenis-kendaraan/3
 Authorization: Bearer {{token}}
+
+### ==========================================
+### 5. CRUD KENDARAAN
+### ==========================================
+
+### 5.1 Lihat semua kendaraan
+GET {{baseUrl}}/kendaraan
+Authorization: Bearer {{token}}
+
+###
+
+### 5.2 Tambah kendaraan
+POST {{baseUrl}}/kendaraan
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "plat_nomor": "B 1234 ABC",
+  "id_jenis":2,
+  "warna": "Hitam",
+  "pemilik": "Verdi"
+}
+
+###
+
+### 5.3 Tambah kendaraan - Mobil
+POST {{baseUrl}}/kendaraan
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "plat_nomor": "B 5678 XYZ",
+  "id_jenis": 2,
+  "warna": "Putih",
+  "pemilik": "Budi"
+}
+
+###
+
+### 5.4 Lihat kendaraan berdasarkan ID
+GET {{baseUrl}}/kendaraan/3
+Authorization: Bearer {{token}}
+
+###
+
+### 5.5 Update data kendaraan
+PATCH {{baseUrl}}/kendaraan/3
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "plat_nomor": "B 1234 ABC",
+  "warna": "Merah",
+  "pemilik": "Verdi Updated"
+}
+
+###
+
+### 5.6 Tes plat nomor duplikat
+POST {{baseUrl}}/kendaraan
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "plat_nomor": "B 1234 ABC",
+  "id_jenis": 3,
+  "warna": "Hitam",
+  "pemilik": "Pengujian"
+}
+
+###
+
+### 5.7 Tes ID jenis kendaraan tidak valid
+POST {{baseUrl}}/kendaraan
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "plat_nomor": "B 9999 TEST",
+  "id_jenis": 999999,
+  "warna": "Hitam",
+  "pemilik": "Pengujian"
+}
+
+###
+
+### 5.8 Hapus kendaraan berdasarkan ID
+DELETE {{baseUrl}}/kendaraan/3
+Authorization: Bearer {{token}}
+
+### ==========================================
+### 6. AREA PARKIR
+### ==========================================
+
+### GET ALL AREA
+GET {{baseUrl}}/area-parkir
+Authorization: Bearer {{token}}
+
+
+### CREATE AREA
+POST {{baseUrl}}/area-parkir
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nama_area": "Area Lantai 1",
+  "kapasitas": 20
+}
+
+
+### CREATE AREA 2
+POST {{baseUrl}}/area-parkir
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nama_area": "Area Lantai 2",
+  "kapasitas": 30
+}
+
+
+### GET DETAIL AREA
+GET {{baseUrl}}/area-parkir/1
+Authorization: Bearer {{token}}
+
+
+### UPDATE AREA
+PATCH {{baseUrl}}/area-parkir/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nama_area": "Area Motor",
+  "kapasitas": 25
+}
+
+
+### TEST KAPASITAS DI BAWAH TERISI
+PATCH {{baseUrl}}/area-parkir/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "kapasitas": 0
+}
+
+
+### TEST TERISI TIDAK BOLEH DIEDIT
+PATCH {{baseUrl}}/area-parkir/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "terisi": 10
+}
+
+
+### SOFT DELETE / NONAKTIFKAN
+PATCH {{baseUrl}}/area-parkir/1/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status_aktif": false
+}
+
+
+### AKTIFKAN KEMBALI
+PATCH {{baseUrl}}/area-parkir/1/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status_aktif": true
+}
+
+
+### HARD DELETE TANPA KONFIRMASI YANG BENAR
+DELETE {{baseUrl}}/area-parkir/2
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "konfirmasi": "HAPUS"
+}
+
+
+### HARD DELETE DENGAN KONFIRMASI
+DELETE {{baseUrl}}/area-parkir/2
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "konfirmasi": "HAPUS_PERMANEN"
+}

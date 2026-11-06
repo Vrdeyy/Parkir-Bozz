@@ -66,12 +66,12 @@ model Tarif {
 }
 
 model AreaParkir {
-  id_area   Int    @id @default(autoincrement())
-  nama_area String @db.VarChar(50)
-  kapasitas Int
-  terisi    Int    @default(0)
-
-  updated_at DateTime @updatedAt
+  id_area      Int      @id @default(autoincrement())
+  nama_area    String   @db.VarChar(50)
+  kapasitas    Int
+  terisi       Int      @default(0)
+  status_aktif Boolean  @default(true)
+  updated_at   DateTime @updatedAt
 
   transaksi Transaksi[]
 

@@ -10,6 +10,8 @@ import { PrismaModule } from './prisma/prisma.module.js';
 import { UsersModule } from './users/users.module.js';
 import { TarifModule } from './tarif/tarif.module.js';
 import { JenisKendaraanModule } from './jenis-kendaraan/jenis-kendaraan.module.js';
+import { KendaraanModule } from './kendaraan/kendaraan.module.js';
+import { AreaParkirModule } from './area-parkir/area-parkir.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -28,6 +30,8 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     UsersModule,
     TarifModule,
     JenisKendaraanModule,
+    KendaraanModule,
+    AreaParkirModule,
   ],
   controllers: [AppController],
   providers: [AppService],
