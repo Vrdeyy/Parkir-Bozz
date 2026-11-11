@@ -12,6 +12,7 @@ import { TarifModule } from './tarif/tarif.module.js';
 import { JenisKendaraanModule } from './jenis-kendaraan/jenis-kendaraan.module.js';
 import { KendaraanModule } from './kendaraan/kendaraan.module.js';
 import { AreaParkirModule } from './area-parkir/area-parkir.module.js';
+import { TransaksiModule } from './transaksi/transaksi.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -32,6 +33,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     JenisKendaraanModule,
     KendaraanModule,
     AreaParkirModule,
+    TransaksiModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -25,7 +25,10 @@ enum MetodePembayaran {
 
 enum StatusPembayaran {
   belum_bayar
+  menunggu
   lunas
+  gagal
+  kedaluwarsa
 }
 
 model User {
@@ -36,9 +39,10 @@ model User {
   role         Role
   status_aktif Boolean @default(true)
 
-  kendaraan     Kendaraan[]
-  transaksi     Transaksi[]
-  log_aktivitas LogAktivitas[]
+  kendaraan        Kendaraan[]
+  transaksi_masuk  Transaksi[]    @relation("PetugasMasuk")
+  transaksi_keluar Transaksi[]    @relation("PetugasKeluar")
+  log_aktivitas    LogAktivitas[]
 
   @@map("tb_user")
 }
@@ -59,8 +63,8 @@ model Tarif {
   tarif_per_jam Decimal  @db.Decimal(10, 0)
   updated_at    DateTime @updatedAt
 
-  jenis      JenisKendaraan @relation(fields: [id_jenis], references: [id_jenis], onDelete: Restrict)
-  transaksi  Transaksi[]
+  jenis     JenisKendaraan @relation(fields: [id_jenis], references: [id_jenis], onDelete: Restrict)
+  transaksi Transaksi[]
 
   @@map("tb_tarif")
 }
@@ -97,29 +101,37 @@ model Kendaraan {
 model Transaksi {
   id_transaksi   Int    @id @default(autoincrement())
   kode_transaksi String @unique @db.VarChar(50)
+  qr_token       String @unique @db.VarChar(64)
+
   id_kendaraan   Int
+  id_tarif       Int
+  id_user_masuk  Int
+  id_user_keluar Int?
+  id_area        Int
 
   waktu_masuk  DateTime  @default(now())
   waktu_keluar DateTime?
 
-  id_tarif Int
-  id_user  Int
-  id_area  Int
-
   tarif_per_jam_snapshot Decimal @db.Decimal(10, 0)
-  durasi_jam             Int     @default(0)
+  durasi_jam Decimal @default(0) @db.Decimal(5, 1)
   biaya_total            Decimal @default(0) @db.Decimal(10, 0)
 
   status            StatusTransaksi   @default(masuk)
   metode_pembayaran MetodePembayaran?
   status_pembayaran StatusPembayaran  @default(belum_bayar)
-  jumlah_bayar      Decimal?          @db.Decimal(10, 0)
-  kembalian         Decimal?          @db.Decimal(10, 0)
 
-  kendaraan Kendaraan  @relation(fields: [id_kendaraan], references: [id_kendaraan])
-  tarif     Tarif      @relation(fields: [id_tarif], references: [id_tarif])
-  user      User       @relation(fields: [id_user], references: [id_user])
-  area      AreaParkir @relation(fields: [id_area], references: [id_area])
+  jumlah_bayar Decimal? @db.Decimal(10, 0)
+  kembalian    Decimal? @db.Decimal(10, 0)
+
+  referensi_pembayaran String?   @unique @db.VarChar(100)
+  waktu_bayar          DateTime?
+
+  kendaraan Kendaraan  @relation(fields: [id_kendaraan], references: [id_kendaraan], onDelete: Restrict)
+  tarif     Tarif      @relation(fields: [id_tarif], references: [id_tarif], onDelete: Restrict)
+  area      AreaParkir @relation(fields: [id_area], references: [id_area], onDelete: Restrict)
+
+  user_masuk  User  @relation("PetugasMasuk", fields: [id_user_masuk], references: [id_user], onDelete: Restrict)
+  user_keluar User? @relation("PetugasKeluar", fields: [id_user_keluar], references: [id_user], onDelete: Restrict)
 
   updated_at DateTime @updatedAt
 
