@@ -1,33 +1,58 @@
+
 @baseUrl = http://localhost:3000
 
-### ==========================================
-### 1. LOGIN ADMIN
-### ==========================================
+# ==========================================================
+# 0. KONFIGURASI
+# ==========================================================
 
+@adminPassword = obatkuat1234
+@idJenisMotor = 1
+@idJenisMobil = 2
+@idTarifMotor = 1
+@idTarifMobil = 2
+@idAreaMotor = 1
+@idAreaMobil = 2
+
+# ==========================================================
+# 1. AUTHENTICATION
+# ==========================================================
+
+### 1.1 Login Admin
 # @name login
 POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
   "username": "admin",
-  "password": "obatkuat1234"
+  "password": "{{adminPassword}}"
+}
+
+###
+
+### LOGIN PETUGAS SOFT DELETE
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "petugas02",
+  "password": "PasswordPetugas123"
 }
 
 ###
 
 @token = {{login.response.body.access_token}}
 
-### ==========================================
-### 2. CRUD USER
-### ==========================================
+# ==========================================================
+# 2. USERS
+# ==========================================================
 
-### 2.1 Buat user petugas 01
+### 2.1 Buat Petugas 01
 POST {{baseUrl}}/users
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "nama_lengkap": "Petugas Parkir",
+  "nama_lengkap": "Petugas Parkir 01",
   "username": "petugas01",
   "password": "PasswordPetugas123",
   "role": "petugas",
@@ -36,13 +61,13 @@ Content-Type: application/json
 
 ###
 
-### 2.2 Buat user petugas 02
+### 2.2 Buat Petugas 02
 POST {{baseUrl}}/users
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "nama_lengkap": "Petugas Parkir",
+  "nama_lengkap": "Petugas Parkir 02",
   "username": "petugas02",
   "password": "PasswordPetugas123",
   "role": "petugas",
@@ -51,19 +76,19 @@ Content-Type: application/json
 
 ###
 
-### 2.3 Lihat semua user
+### 2.3 Lihat Semua User
 GET {{baseUrl}}/users
 Authorization: Bearer {{token}}
 
 ###
 
-### 2.4 Lihat user berdasarkan ID
-GET {{baseUrl}}/users/3
+### 2.4 Detail User
+GET {{baseUrl}}/users/2
 Authorization: Bearer {{token}}
 
 ###
 
-### 2.5 Update data user
+### 2.5 Update User
 PATCH {{baseUrl}}/users/3
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -74,7 +99,7 @@ Content-Type: application/json
 
 ###
 
-### 2.6 Nonaktifkan user
+### 2.6 Nonaktifkan User
 PATCH {{baseUrl}}/users/3/status
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -85,23 +110,26 @@ Content-Type: application/json
 
 ###
 
-### 2.7 Hapus user permanen
-DELETE {{baseUrl}}/users/3
+### 2.8 Aktifkan Kembali User
+PATCH {{baseUrl}}/users/3/status
 Authorization: Bearer {{token}}
+Content-Type: application/json
 
-###
+{
+  "status_aktif": true
+}
 
-### ==========================================
-### 3. CRUD JENIS KENDARAAN
-### ==========================================
+# ==========================================================
+# 3. JENIS KENDARAAN
+# ==========================================================
 
-### 3.1 Lihat semua jenis kendaraan
+### 3.1 Lihat Semua Jenis Kendaraan
 GET {{baseUrl}}/jenis-kendaraan
 Authorization: Bearer {{token}}
 
 ###
 
-### 3.2 Tambah jenis kendaraan - Motor
+### 3.2 Tambah Jenis Motor
 POST {{baseUrl}}/jenis-kendaraan
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -112,7 +140,7 @@ Content-Type: application/json
 
 ###
 
-### 3.3 Tambah jenis kendaraan - Mobil
+### 3.3 Tambah Jenis Mobil
 POST {{baseUrl}}/jenis-kendaraan
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -123,14 +151,25 @@ Content-Type: application/json
 
 ###
 
-### 3.4 Lihat jenis kendaraan berdasarkan ID
-GET {{baseUrl}}/jenis-kendaraan/1
+### 3.4 Detail Jenis Motor
+GET {{baseUrl}}/jenis-kendaraan/{{idJenisMotor}}
 Authorization: Bearer {{token}}
 
 ###
 
-### 3.5 Update jenis kendaraan
-PATCH {{baseUrl}}/jenis-kendaraan/1
+### 3.5 Tes Jenis Kendaraan Duplikat
+POST {{baseUrl}}/jenis-kendaraan
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nama_jenis": "Motor"
+}
+
+###
+
+### 3.6 Update Jenis Kendaraan
+PATCH {{baseUrl}}/jenis-kendaraan/{{idJenisMotor}}
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -140,49 +179,78 @@ Content-Type: application/json
 
 ###
 
-DELETE {{baseUrl}}/jenis-kendaraan/1
+### 3.7 Kembalikan Nama Jenis Motor
+PATCH {{baseUrl}}/jenis-kendaraan/{{idJenisMotor}}
 Authorization: Bearer {{token}}
+Content-Type: application/json
 
-### ==========================================
-### 4. CRUD TARIF
-### ==========================================
+{
+  "nama_jenis": "Motor"
+}
 
-### 4.1 Lihat semua tarif
+# ==========================================================
+# 4. TARIF
+# ==========================================================
+
+### 4.1 Lihat Semua Tarif
 GET {{baseUrl}}/tarif
 Authorization: Bearer {{token}}
 
 ###
 
-### 4.2 Lihat tarif berdasarkan ID
-GET {{baseUrl}}/tarif/2
-Authorization: Bearer {{token}}
-
-###
-
-### 4.3 Tambah tarif kendaraan
+### 4.2 Tambah Tarif Motor
 POST {{baseUrl}}/tarif
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "id_jenis": 3,
+  "id_jenis": {{idJenisMotor}},
   "tarif_per_jam": 3000
 }
 
 ###
 
-### 4.4 Update tarif kendaraan
-PATCH {{baseUrl}}/tarif/2
+### 4.3 Tambah Tarif Mobil
+POST {{baseUrl}}/tarif
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "tarif_per_jam": 4000
+  "id_jenis": {{idJenisMobil}},
+  "tarif_per_jam": 5000
 }
 
 ###
 
-### 4.5 Tes tarif dengan ID jenis kendaraan tidak valid
+### 4.4 Detail Tarif
+GET {{baseUrl}}/tarif/{{idTarifMobil}}
+Authorization: Bearer {{token}}
+
+###
+
+### 4.5 Update Tarif Mobil
+PATCH {{baseUrl}}/tarif/{{idTarifMobil}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tarif_per_jam": 6000
+}
+
+###
+
+### 4.6 Kembalikan Tarif Mobil
+PATCH {{baseUrl}}/tarif/{{idTarifMobil}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tarif_per_jam": 5000
+}
+
+###
+
+### 4.7 Tes ID Jenis Tidak Valid
 POST {{baseUrl}}/tarif
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -194,100 +262,99 @@ Content-Type: application/json
 
 ###
 
-### 4.6 Tes tarif duplikat untuk jenis kendaraan yang sama
+### 4.8 Tes Tarif Duplikat
 POST {{baseUrl}}/tarif
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "id_jenis": 3,
+  "id_jenis": {{idJenisMobil}},
   "tarif_per_jam": 5000
 }
 
-###
+# ==========================================================
+# 5. KENDARAAN
+# ==========================================================
 
-### 4.7 Hapus tarif kendaraan
-DELETE {{baseUrl}}/tarif/2
-Authorization: Bearer {{token}}
-
-###
-
-### 4.8 Hapus jenis kendaraan
-DELETE {{baseUrl}}/jenis-kendaraan/3
-Authorization: Bearer {{token}}
-
-### ==========================================
-### 5. CRUD KENDARAAN
-### ==========================================
-
-### 5.1 Lihat semua kendaraan
+### 5.1 Lihat Semua Kendaraan
 GET {{baseUrl}}/kendaraan
 Authorization: Bearer {{token}}
 
 ###
 
-### 5.2 Tambah kendaraan
+### 5.2 Tambah Kendaraan Motor
 POST {{baseUrl}}/kendaraan
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "plat_nomor": "B 1234 ABC",
-  "id_jenis":2,
+  "id_jenis": {{idJenisMotor}},
   "warna": "Hitam",
-  "pemilik": "Verdi"
+  "pemilik": "Test Motor"
 }
 
 ###
 
-### 5.3 Tambah kendaraan - Mobil
+### 5.3 Tambah Kendaraan Mobil
 POST {{baseUrl}}/kendaraan
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "plat_nomor": "B 5678 XYZ",
-  "id_jenis": 2,
+  "id_jenis": {{idJenisMobil}},
   "warna": "Putih",
-  "pemilik": "Budi"
+  "pemilik": "Test Mobil"
 }
 
 ###
 
-### 5.4 Lihat kendaraan berdasarkan ID
-GET {{baseUrl}}/kendaraan/3
+### 5.4 Detail Kendaraan
+GET {{baseUrl}}/kendaraan/1
 Authorization: Bearer {{token}}
 
 ###
 
-### 5.5 Update data kendaraan
-PATCH {{baseUrl}}/kendaraan/3
+### 5.5 Update Kendaraan
+PATCH {{baseUrl}}/kendaraan/1
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "plat_nomor": "B 1234 ABC",
   "warna": "Merah",
-  "pemilik": "Verdi Updated"
+  "pemilik": "Notor Updated"
 }
 
 ###
 
-### 5.6 Tes plat nomor duplikat
+### 5.6 Kembalikan Data Kendaraan
+PATCH {{baseUrl}}/kendaraan/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "warna": "Hitam",
+  "pemilik": "Test Motor"
+}
+
+###
+
+### 5.7 Tes Plat Nomor Duplikat
 POST {{baseUrl}}/kendaraan
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "plat_nomor": "B 1234 ABC",
-  "id_jenis": 3,
+  "id_jenis": {{idJenisMotor}},
   "warna": "Hitam",
   "pemilik": "Pengujian"
 }
 
 ###
 
-### 5.7 Tes ID jenis kendaraan tidak valid
+### 5.8 Tes ID Jenis Tidak Valid
 POST {{baseUrl}}/kendaraan
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -299,50 +366,18 @@ Content-Type: application/json
   "pemilik": "Pengujian"
 }
 
-###
+# ==========================================================
+# 6. AREA PARKIR
+# ==========================================================
 
-### 5.8 Hapus kendaraan berdasarkan ID
-DELETE {{baseUrl}}/kendaraan/3
-Authorization: Bearer {{token}}
-
-### ==========================================
-### 6. AREA PARKIR
-### ==========================================
-
-### GET ALL AREA
+### 6.1 Lihat Semua Area
 GET {{baseUrl}}/area-parkir
 Authorization: Bearer {{token}}
 
+###
 
-### CREATE AREA
+### 6.2 Buat Area Motor
 POST {{baseUrl}}/area-parkir
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "nama_area": "Area Lantai 1",
-  "kapasitas": 20
-}
-
-
-### CREATE AREA 2
-POST {{baseUrl}}/area-parkir
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "nama_area": "Area Lantai 2",
-  "kapasitas": 30
-}
-
-
-### GET DETAIL AREA
-GET {{baseUrl}}/area-parkir/1
-Authorization: Bearer {{token}}
-
-
-### UPDATE AREA
-PATCH {{baseUrl}}/area-parkir/1
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -351,9 +386,52 @@ Content-Type: application/json
   "kapasitas": 25
 }
 
+###
 
-### TEST KAPASITAS DI BAWAH TERISI
-PATCH {{baseUrl}}/area-parkir/1
+### 6.3 Buat Area Mobil
+POST {{baseUrl}}/area-parkir
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nama_area": "Area Mobil",
+  "kapasitas": 30
+}
+
+###
+
+### 6.4 Detail Area Motor
+GET {{baseUrl}}/area-parkir/{{idAreaMotor}}
+Authorization: Bearer {{token}}
+
+###
+
+### 6.5 Update Area Motor
+PATCH {{baseUrl}}/area-parkir/{{idAreaMotor}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nama_area": "Area Motor Updated",
+  "kapasitas": 25
+}
+
+###
+
+### 6.6 Kembalikan Nama Area
+PATCH {{baseUrl}}/area-parkir/{{idAreaMotor}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nama_area": "Area Motor",
+  "kapasitas": 25
+}
+
+###
+
+### 6.7 Tes Kapasitas Tidak Valid
+PATCH {{baseUrl}}/area-parkir/{{idAreaMotor}}
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -361,9 +439,10 @@ Content-Type: application/json
   "kapasitas": 0
 }
 
+###
 
-### TEST TERISI TIDAK BOLEH DIEDIT
-PATCH {{baseUrl}}/area-parkir/1
+### 6.8 Tes Terisi Tidak Boleh Diedit
+PATCH {{baseUrl}}/area-parkir/{{idAreaMotor}}
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -371,9 +450,10 @@ Content-Type: application/json
   "terisi": 10
 }
 
+###
 
-### SOFT DELETE / NONAKTIFKAN
-PATCH {{baseUrl}}/area-parkir/1/status
+### 6.9 Soft Delete / Nonaktifkan Area
+PATCH {{baseUrl}}/area-parkir/{{idAreaMotor}}/status
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -381,9 +461,10 @@ Content-Type: application/json
   "status_aktif": false
 }
 
+###
 
-### AKTIFKAN KEMBALI
-PATCH {{baseUrl}}/area-parkir/1/status
+### 6.10 Aktifkan Kembali Area
+PATCH {{baseUrl}}/area-parkir/{{idAreaMotor}}/status
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -391,18 +472,380 @@ Content-Type: application/json
   "status_aktif": true
 }
 
+# ==========================================================
+# 7. TRANSAKSI PARKIR
+# ==========================================================
 
-### HARD DELETE TANPA KONFIRMASI YANG BENAR
-DELETE {{baseUrl}}/area-parkir/2
+### 7.0 KONFIGURASI TRANSAKSI
+@idJenisTransaksi = {{idJenisMobil}}
+@idAreaTransaksi = {{idAreaMobil}}
+
+###
+
+### 7.1 Kendaraan Masuk
+# @name kendaraanMasuk
+POST {{baseUrl}}/transaksi/masuk
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "konfirmasi": "HAPUS"
+  "plat_nomor": "B 9090 TEST",
+  "id_jenis": {{idJenisTransaksi}},
+  "warna": "Hitam",
+  "pemilik": "Pengujian Transaksi",
+  "id_area": {{idAreaTransaksi}}
 }
 
+###
 
-### HARD DELETE DENGAN KONFIRMASI
+### Ambil QR Token
+@qrToken = {{kendaraanMasuk.response.body.data.qr_token}}
+
+###
+
+### 7.2 Tes Kendaraan Masuk dengan Transaksi Aktif
+# Ekspektasi: 409 Conflict
+POST {{baseUrl}}/transaksi/masuk
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "plat_nomor": "B 9090 TEST",
+  "id_jenis": {{idJenisTransaksi}},
+  "warna": "Hitam",
+  "pemilik": "Pengujian Transaksi",
+  "id_area": {{idAreaTransaksi}}
+}
+
+###
+
+### 7.3 Scan QR Kendaraan Keluar
+POST {{baseUrl}}/transaksi/keluar/scan
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "qr_token": "{{qrToken}}"
+}
+
+###
+
+### 7.4 Tes QR Tidak Valid
+# Ekspektasi: 404 Not Found
+POST {{baseUrl}}/transaksi/keluar/scan
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "qr_token": "0000000000000000000000000000000000000000000000000000000000000000"
+}
+
+###
+
+### 7.5 Tes Pembayaran Kurang
+# Ekspektasi: 400 Bad Request
+POST {{baseUrl}}/transaksi/keluar/bayar-tunai
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "qr_token": "{{qrToken}}",
+  "jumlah_bayar": 0
+}
+
+###
+
+### 7.6 Periksa Area Setelah Pembayaran Gagal
+GET {{baseUrl}}/area-parkir/{{idAreaTransaksi}}
+Authorization: Bearer {{token}}
+
+###
+
+### 7.7 Pembayaran Tunai Berhasil
+# @name pembayaranTunai
+POST {{baseUrl}}/transaksi/keluar/bayar-tunai
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "qr_token": "{{qrToken}}",
+  "jumlah_bayar": 100000
+}
+
+###
+
+### 7.7.B Request Dynamic QRIS Midtrans
+# @name bayarQris
+POST {{baseUrl}}/transaksi/keluar/bayar-qris
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "qr_token": "{{qrToken}}"
+}
+
+###
+
+### 7.7.C Cek Status Pembayaran QRIS (Polling)
+GET {{baseUrl}}/transaksi/status-pembayaran/{{qrToken}}
+
+###
+
+### 7.7.D Simulasi Bayar QRIS Sukses (Khusus Demo / Uprak)
+POST {{baseUrl}}/transaksi/keluar/simulasi-qris-lunas/{{qrToken}}
+Authorization: Bearer {{token}}
+
+###
+
+### 7.8 Tes Pembayaran Ulang
+# Ekspektasi: 409 Conflict
+POST {{baseUrl}}/transaksi/keluar/bayar-tunai
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "qr_token": "{{qrToken}}",
+  "jumlah_bayar": 10000
+}
+
+###
+
+### 7.9 Scan Ulang QR Setelah Transaksi Selesai
+# Ekspektasi: 409 Conflict
+POST {{baseUrl}}/transaksi/keluar/scan
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "qr_token": "{{qrToken}}"
+}
+
+###
+
+### 7.10 Periksa Daftar Transaksi
+GET {{baseUrl}}/transaksi
+Authorization: Bearer {{token}}
+
+###
+
+### 7.11 Periksa Detail Area Setelah Pembayaran
+GET {{baseUrl}}/area-parkir/{{idAreaTransaksi}}
+Authorization: Bearer {{token}}
+
+# ==========================================================
+# 8. RIWAYAT TRANSAKSI
+# ==========================================================
+
+### 8.1 Semua Riwayat
+GET {{baseUrl}}/transaksi
+Authorization: Bearer {{token}}
+
+###
+
+### 8.2 Detail Transaksi
+GET {{baseUrl}}/transaksi/1
+Authorization: Bearer {{token}}
+
+###
+
+### 8.3 Filter Transaksi Masuk
+GET {{baseUrl}}/transaksi?status=masuk
+Authorization: Bearer {{token}}
+
+###
+
+### 8.4 Filter Transaksi Keluar
+GET {{baseUrl}}/transaksi?status=keluar
+Authorization: Bearer {{token}}
+
+###
+
+### 8.5 Filter Plat Nomor
+GET {{baseUrl}}/transaksi?plat_nomor=B%209090%20TEST
+Authorization: Bearer {{token}}
+
+###
+
+### 8.6 Filter Rentang Tanggal
+GET {{baseUrl}}/transaksi?tanggal_mulai=2026-11-01T00:00:00.000Z&tanggal_selesai=2026-11-30T23:59:59.999Z
+Authorization: Bearer {{token}}
+
+###
+
+### 8.7 Filter Gabungan dan Pagination
+GET {{baseUrl}}/transaksi?status=keluar&plat_nomor=B%209090%20TEST&page=1&limit=5
+Authorization: Bearer {{token}}
+
+###
+
+### 8.8 ID Transaksi Tidak Ditemukan
+GET {{baseUrl}}/transaksi/999999
+Authorization: Bearer {{token}}
+
+###
+
+### 8.9 Pagination Tidak Valid
+GET {{baseUrl}}/transaksi?page=0&limit=500
+Authorization: Bearer {{token}}
+
+# ==========================================================
+# 9. PENGUJIAN KONSISTENSI KAPASITAS
+# ==========================================================
+
+### 9.1 Periksa Kondisi Area
+GET {{baseUrl}}/area-parkir/{{idAreaTransaksi}}
+Authorization: Bearer {{token}}
+
+###
+
+### 9.2 Periksa Daftar Kendaraan
+GET {{baseUrl}}/kendaraan
+Authorization: Bearer {{token}}
+
+###
+
+### 9.3 Periksa Daftar Transaksi
+GET {{baseUrl}}/transaksi
+Authorization: Bearer {{token}}
+
+# ==========================================================
+# 10. RACE CONDITION
+# ==========================================================
+
+# PENGUJIAN INI BELUM DIJALANKAN.
+# Siapkan area khusus dengan kapasitas 1.
+# Pastikan area kosong sebelum tes.
+# Jalankan dua request masuk secara PARALEL dari terminal.
+# Jangan menjalankan request A dan B satu per satu.
+
+@idAreaRace = 3
+@idJenisRace = {{idJenisMobil}}
+
+### 10.1 Periksa Area Race Test
+GET {{baseUrl}}/area-parkir/{{idAreaRace}}
+Authorization: Bearer {{token}}
+
+###
+
+### 10.2 Kendaraan A (Persiapan Manual)
+# @name kendaraanRaceA
+POST {{baseUrl}}/transaksi/masuk
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "plat_nomor": "B 1111 RACE",
+  "id_jenis": {{idJenisRace}},
+  "warna": "Hitam",
+  "pemilik": "Test Race A",
+  "id_area": {{idAreaRace}}
+}
+
+###
+
+### 10.3 Kendaraan B (Persiapan Manual)
+# @name kendaraanRaceB
+POST {{baseUrl}}/transaksi/masuk
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "plat_nomor": "B 2222 RACE",
+  "id_jenis": {{idJenisRace}},
+  "warna": "Putih",
+  "pemilik": "Test Race B",
+  "id_area": {{idAreaRace}}
+}
+
+###
+
+# CATATAN:
+# Request 10.2 dan 10.3 di atas hanya untuk persiapan manual.
+# Untuk tes race condition sebenarnya, gunakan dua curl paralel.
+# Jangan kirim keduanya secara berurutan lalu menganggapnya tes race.
+
+# ==========================================================
+# 11. PEMBERSIHAN DATA PENGUJIAN
+# ==========================================================
+
+# Bagian ini dijalankan setelah seluruh pengujian selesai.
+# Gunakan QR token dari response POST kendaraan masuk.
+# Jangan mengambil token dari endpoint riwayat karena endpoint
+# riwayat tidak menampilkan qr_token.
+
+### 11.1 Periksa Area Sebelum Pembersihan
+GET {{baseUrl}}/area-parkir/{{idAreaTransaksi}}
+Authorization: Bearer {{token}}
+
+###
+
+### 11.2 Periksa Transaksi Kendaraan Uji
+GET {{baseUrl}}/transaksi?plat_nomor=B%209090%20TEST
+Authorization: Bearer {{token}}
+
+###
+
+### 11.3 Scan QR Kendaraan Uji
+POST {{baseUrl}}/transaksi/keluar/scan
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "qr_token": "{{qrToken}}"
+}
+
+###
+
+### 11.4 Bayar Kendaraan Uji Jika Masih Aktif
+POST {{baseUrl}}/transaksi/keluar/bayar-tunai
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "qr_token": "{{qrToken}}",
+  "jumlah_bayar": 100000
+}
+
+###
+
+### 11.5 Verifikasi Area Setelah Pembersihan
+GET {{baseUrl}}/area-parkir/{{idAreaTransaksi}}
+Authorization: Bearer {{token}}
+
+###
+
+### 11.6 Verifikasi Transaksi Akhir
+GET {{baseUrl}}/transaksi
+Authorization: Bearer {{token}}
+
+# ==========================================================
+# 12. PENGUJIAN DELETE PERMANEN
+# ==========================================================
+
+# JALANKAN PALING AKHIR.
+# Hapus hanya data yang memang aman dihapus.
+# Jangan hapus jenis kendaraan/tarif/area yang masih direferensikan
+# oleh data transaksi atau kendaraan.
+
+### 12.1 Hapus Kendaraan Pengujian
+DELETE {{baseUrl}}/kendaraan/1
+Authorization: Bearer {{token}}
+
+###
+
+### 12.2 Hapus Tarif
+DELETE {{baseUrl}}/tarif/{{idTarifMotor}}
+Authorization: Bearer {{token}}
+
+###
+
+### 12.3 Hapus Jenis Kendaraan
+DELETE {{baseUrl}}/jenis-kendaraan/{{idJenisMotor}}
+Authorization: Bearer {{token}}
+
+###
+
+### 12.4 Hard Delete Area (PERMANEN)
 DELETE {{baseUrl}}/area-parkir/2
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -410,3 +853,9 @@ Content-Type: application/json
 {
   "konfirmasi": "HAPUS_PERMANEN"
 }
+
+###
+
+### 12.5 Hapus User Pengujian
+DELETE {{baseUrl}}/users/2
+Authorization: Bearer {{token}}

@@ -9,6 +9,7 @@ import {
     Post,
     UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { Role } from '@prisma/client';
 
@@ -23,33 +24,36 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
 import { Roles } from '../auth/decorators/roles.decorator.js';
 
+@ApiTags('Area Parkir')
+@ApiBearerAuth('JWT-auth')
 @Controller('area-parkir')
 @UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(Role.admin)
 export class AreaParkirController {
     constructor(
         private readonly areaParkirService: AreaParkirService,
     ) { }
 
+    @ApiOperation({ summary: 'Mendapatkan seluruh daftar area parkir (Khusus Admin)' })
     @Get()
-    @Roles(Role.admin, Role.petugas)
     findAll() {
         return this.areaParkirService.findAll();
     }
 
+    @ApiOperation({ summary: 'Mendapatkan detail area parkir berdasarkan ID (Khusus Admin)' })
     @Get(':id')
-    @Roles(Role.admin, Role.petugas)
     findOne(@Param('id', ParseIntPipe) id: number) {
         return this.areaParkirService.findOne(id);
     }
 
+    @ApiOperation({ summary: 'Membuat area parkir baru (Khusus Admin)' })
     @Post()
-    @Roles(Role.admin)
     create(@Body() dto: CreateAreaParkirDto) {
         return this.areaParkirService.create(dto);
     }
 
+    @ApiOperation({ summary: 'Memperbarui nama dan kapasitas area parkir (Khusus Admin)' })
     @Patch(':id')
-    @Roles(Role.admin)
     update(
         @Param('id', ParseIntPipe) id: number,
         @Body() dto: UpdateAreaParkirDto,
@@ -57,8 +61,8 @@ export class AreaParkirController {
         return this.areaParkirService.update(id, dto);
     }
 
+    @ApiOperation({ summary: 'Mengubah status aktif/nonaktif area parkir (Soft Delete) (Khusus Admin)' })
     @Patch(':id/status')
-    @Roles(Role.admin)
     updateStatus(
         @Param('id', ParseIntPipe) id: number,
         @Body() dto: UpdateStatusAreaParkirDto,
@@ -66,8 +70,8 @@ export class AreaParkirController {
         return this.areaParkirService.updateStatus(id, dto);
     }
 
+    @ApiOperation({ summary: 'Menghapus permanen area parkir (Wajib konfirmasi HAPUS_PERMANEN) (Khusus Admin)' })
     @Delete(':id')
-    @Roles(Role.admin)
     hardDelete(
         @Param('id', ParseIntPipe) id: number,
         @Body() dto: HardDeleteAreaParkirDto,

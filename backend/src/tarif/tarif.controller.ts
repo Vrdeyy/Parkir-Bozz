@@ -10,6 +10,7 @@ import {
     Post,
     UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 
 import { TarifService } from './tarif.service.js';
@@ -19,31 +20,34 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
 import { Roles } from '../auth/decorators/roles.decorator.js';
 
+@ApiTags('Tarif Parkir')
+@ApiBearerAuth('JWT-auth')
 @Controller('tarif')
 @UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(Role.admin)
 export class TarifController {
     constructor(private readonly tarifService: TarifService) { }
 
+    @ApiOperation({ summary: 'Menambahkan tarif untuk jenis kendaraan (Khusus Admin)' })
     @Post()
-    @Roles(Role.admin)
     create(@Body() dto: CreateTarifDto) {
         return this.tarifService.create(dto);
     }
 
+    @ApiOperation({ summary: 'Mendapatkan seluruh daftar tarif parkir (Khusus Admin)' })
     @Get()
-    @Roles(Role.admin, Role.petugas, Role.owner)
     findAll() {
         return this.tarifService.findAll();
     }
 
+    @ApiOperation({ summary: 'Mendapatkan detail tarif berdasarkan ID (Khusus Admin)' })
     @Get(':id')
-    @Roles(Role.admin, Role.petugas, Role.owner)
     findOne(@Param('id', ParseIntPipe) id: number) {
         return this.tarifService.findOne(id);
     }
 
+    @ApiOperation({ summary: 'Memperbarui tarif parkir (Khusus Admin)' })
     @Patch(':id')
-    @Roles(Role.admin)
     update(
         @Param('id', ParseIntPipe) id: number,
         @Body() dto: UpdateTarifDto,
@@ -51,8 +55,8 @@ export class TarifController {
         return this.tarifService.update(id, dto);
     }
 
+    @ApiOperation({ summary: 'Menghapus tarif parkir jika belum ada transaksi (Khusus Admin)' })
     @Delete(':id')
-    @Roles(Role.admin)
     remove(@Param('id', ParseIntPipe) id: number) {
         return this.tarifService.remove(id);
     }

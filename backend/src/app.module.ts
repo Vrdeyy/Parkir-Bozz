@@ -1,6 +1,7 @@
 
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { createObserveModule } from '@nestjs/observe';
 
 import { AppController } from './app.controller.js';
@@ -13,6 +14,9 @@ import { JenisKendaraanModule } from './jenis-kendaraan/jenis-kendaraan.module.j
 import { KendaraanModule } from './kendaraan/kendaraan.module.js';
 import { AreaParkirModule } from './area-parkir/area-parkir.module.js';
 import { TransaksiModule } from './transaksi/transaksi.module.js';
+import { LogAktivitasModule } from './log-aktivitas/log-aktivitas.module.js';
+import { LogAktivitasInterceptor } from './log-aktivitas/log-aktivitas.interceptor.js';
+import { DashboardModule } from './dashboard/dashboard.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -34,8 +38,16 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     KendaraanModule,
     AreaParkirModule,
     TransaksiModule,
+    LogAktivitasModule,
+    DashboardModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LogAktivitasInterceptor,
+    },
+  ],
 })
 export class AppModule { }

@@ -7,6 +7,118 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id_user          Int            @id @default(autoincrement())
+  nama_lengkap     String         @db.VarChar(50)
+  username         String         @unique @db.VarChar(50)
+  password         String         @db.VarChar(100)
+  role             Role
+  status_aktif     Boolean        @default(true)
+  kendaraan        Kendaraan[]
+  log_aktivitas    LogAktivitas[]
+  transaksi_keluar Transaksi[]    @relation("PetugasKeluar")
+  transaksi_masuk  Transaksi[]    @relation("PetugasMasuk")
+
+  @@map("tb_user")
+}
+
+model JenisKendaraan {
+  id_jenis   Int         @id @default(autoincrement())
+  nama_jenis String      @unique @db.VarChar(30)
+  kendaraan  Kendaraan[]
+  tarif      Tarif?
+
+  @@map("tb_jenis_kendaraan")
+}
+
+model Tarif {
+  id_tarif      Int            @id @default(autoincrement())
+  tarif_per_jam Decimal        @db.Decimal(10, 0)
+  id_jenis      Int            @unique
+  updated_at    DateTime       @updatedAt
+  jenis         JenisKendaraan @relation(fields: [id_jenis], references: [id_jenis])
+  transaksi     Transaksi[]
+
+  @@map("tb_tarif")
+}
+
+model AreaParkir {
+  id_area      Int         @id @default(autoincrement())
+  nama_area    String      @db.VarChar(50)
+  kapasitas    Int
+  terisi       Int         @default(0)
+  updated_at   DateTime    @updatedAt
+  status_aktif Boolean     @default(true)
+  transaksi    Transaksi[]
+
+  @@map("tb_area_parkir")
+}
+
+model Kendaraan {
+  id_kendaraan Int            @id @default(autoincrement())
+  plat_nomor   String         @unique @db.VarChar(15)
+  warna        String?        @db.VarChar(20)
+  pemilik      String?        @db.VarChar(100)
+  id_user      Int?
+  id_jenis     Int
+  jenis        JenisKendaraan @relation(fields: [id_jenis], references: [id_jenis])
+  user         User?          @relation(fields: [id_user], references: [id_user])
+  transaksi    Transaksi[]
+
+  @@index([id_jenis])
+  @@index([id_user], map: "tb_kendaraan_id_user_fkey")
+  @@map("tb_kendaraan")
+}
+
+model Transaksi {
+  id_transaksi           Int               @id @default(autoincrement())
+  kode_transaksi         String            @unique @db.VarChar(50)
+  id_kendaraan           Int
+  waktu_masuk            DateTime          @default(now())
+  waktu_keluar           DateTime?
+  id_tarif               Int
+  durasi_jam             Decimal           @default(0.0) @db.Decimal(5, 1)
+  biaya_total            Decimal           @default(0) @db.Decimal(10, 0)
+  status                 StatusTransaksi   @default(masuk)
+  id_area                Int
+  jumlah_bayar           Decimal?          @db.Decimal(10, 0)
+  kembalian              Decimal?          @db.Decimal(10, 0)
+  metode_pembayaran      MetodePembayaran?
+  status_pembayaran      StatusPembayaran  @default(belum_bayar)
+  tarif_per_jam_snapshot Decimal           @db.Decimal(10, 0)
+  updated_at             DateTime          @updatedAt
+  id_user_keluar         Int?
+  id_user_masuk          Int
+  qr_token               String            @unique @db.VarChar(64)
+  referensi_pembayaran   String?           @unique @db.VarChar(100)
+  waktu_bayar            DateTime?
+  area                   AreaParkir        @relation(fields: [id_area], references: [id_area])
+  kendaraan              Kendaraan         @relation(fields: [id_kendaraan], references: [id_kendaraan])
+  tarif                  Tarif             @relation(fields: [id_tarif], references: [id_tarif])
+  user_keluar            User?             @relation("PetugasKeluar", fields: [id_user_keluar], references: [id_user], onDelete: Restrict)
+  user_masuk             User              @relation("PetugasMasuk", fields: [id_user_masuk], references: [id_user])
+
+  @@index([status, id_area])
+  @@index([id_kendaraan, status])
+  @@index([waktu_masuk])
+  @@index([id_area], map: "tb_transaksi_id_area_fkey")
+  @@index([id_tarif], map: "tb_transaksi_id_tarif_fkey")
+  @@index([id_user_keluar], map: "tb_transaksi_id_user_keluar_fkey")
+  @@index([id_user_masuk], map: "tb_transaksi_id_user_masuk_fkey")
+  @@map("tb_transaksi")
+}
+
+model LogAktivitas {
+  id_log          Int      @id @default(autoincrement())
+  id_user         Int
+  aktivitas       String   @db.VarChar(100)
+  waktu_aktivitas DateTime @default(now())
+  user            User     @relation(fields: [id_user], references: [id_user], onDelete: Cascade)
+
+  @@index([id_user], map: "tb_log_aktivitas_id_user_fkey")
+  @@map("tb_log_aktivitas")
+}
+
 enum Role {
   admin
   petugas
@@ -29,125 +141,4 @@ enum StatusPembayaran {
   lunas
   gagal
   kedaluwarsa
-}
-
-model User {
-  id_user      Int     @id @default(autoincrement())
-  nama_lengkap String  @db.VarChar(50)
-  username     String  @unique @db.VarChar(50)
-  password     String  @db.VarChar(100)
-  role         Role
-  status_aktif Boolean @default(true)
-
-  kendaraan        Kendaraan[]
-  transaksi_masuk  Transaksi[]    @relation("PetugasMasuk")
-  transaksi_keluar Transaksi[]    @relation("PetugasKeluar")
-  log_aktivitas    LogAktivitas[]
-
-  @@map("tb_user")
-}
-
-model JenisKendaraan {
-  id_jenis   Int    @id @default(autoincrement())
-  nama_jenis String @unique @db.VarChar(30)
-
-  kendaraan Kendaraan[]
-  tarif     Tarif?
-
-  @@map("tb_jenis_kendaraan")
-}
-
-model Tarif {
-  id_tarif      Int      @id @default(autoincrement())
-  id_jenis      Int      @unique
-  tarif_per_jam Decimal  @db.Decimal(10, 0)
-  updated_at    DateTime @updatedAt
-
-  jenis     JenisKendaraan @relation(fields: [id_jenis], references: [id_jenis], onDelete: Restrict)
-  transaksi Transaksi[]
-
-  @@map("tb_tarif")
-}
-
-model AreaParkir {
-  id_area      Int      @id @default(autoincrement())
-  nama_area    String   @db.VarChar(50)
-  kapasitas    Int
-  terisi       Int      @default(0)
-  status_aktif Boolean  @default(true)
-  updated_at   DateTime @updatedAt
-
-  transaksi Transaksi[]
-
-  @@map("tb_area_parkir")
-}
-
-model Kendaraan {
-  id_kendaraan Int     @id @default(autoincrement())
-  plat_nomor   String  @unique @db.VarChar(15)
-  id_jenis     Int
-  warna        String? @db.VarChar(20)
-  pemilik      String? @db.VarChar(100)
-  id_user      Int?
-
-  jenis     JenisKendaraan @relation(fields: [id_jenis], references: [id_jenis], onDelete: Restrict)
-  user      User?          @relation(fields: [id_user], references: [id_user], onDelete: SetNull)
-  transaksi Transaksi[]
-
-  @@index([id_jenis])
-  @@map("tb_kendaraan")
-}
-
-model Transaksi {
-  id_transaksi   Int    @id @default(autoincrement())
-  kode_transaksi String @unique @db.VarChar(50)
-  qr_token       String @unique @db.VarChar(64)
-
-  id_kendaraan   Int
-  id_tarif       Int
-  id_user_masuk  Int
-  id_user_keluar Int?
-  id_area        Int
-
-  waktu_masuk  DateTime  @default(now())
-  waktu_keluar DateTime?
-
-  tarif_per_jam_snapshot Decimal @db.Decimal(10, 0)
-  durasi_jam Decimal @default(0) @db.Decimal(5, 1)
-  biaya_total            Decimal @default(0) @db.Decimal(10, 0)
-
-  status            StatusTransaksi   @default(masuk)
-  metode_pembayaran MetodePembayaran?
-  status_pembayaran StatusPembayaran  @default(belum_bayar)
-
-  jumlah_bayar Decimal? @db.Decimal(10, 0)
-  kembalian    Decimal? @db.Decimal(10, 0)
-
-  referensi_pembayaran String?   @unique @db.VarChar(100)
-  waktu_bayar          DateTime?
-
-  kendaraan Kendaraan  @relation(fields: [id_kendaraan], references: [id_kendaraan], onDelete: Restrict)
-  tarif     Tarif      @relation(fields: [id_tarif], references: [id_tarif], onDelete: Restrict)
-  area      AreaParkir @relation(fields: [id_area], references: [id_area], onDelete: Restrict)
-
-  user_masuk  User  @relation("PetugasMasuk", fields: [id_user_masuk], references: [id_user], onDelete: Restrict)
-  user_keluar User? @relation("PetugasKeluar", fields: [id_user_keluar], references: [id_user], onDelete: Restrict)
-
-  updated_at DateTime @updatedAt
-
-  @@index([status, id_area])
-  @@index([id_kendaraan, status])
-  @@index([waktu_masuk])
-  @@map("tb_transaksi")
-}
-
-model LogAktivitas {
-  id_log          Int      @id @default(autoincrement())
-  id_user         Int
-  aktivitas       String   @db.VarChar(100)
-  waktu_aktivitas DateTime @default(now())
-
-  user User @relation(fields: [id_user], references: [id_user], onDelete: Cascade)
-
-  @@map("tb_log_aktivitas")
 }

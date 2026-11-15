@@ -18,6 +18,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     async validate(payload: { sub: number }) {
+        if (
+        !payload ||
+        typeof payload.sub !== 'number' ||
+        !Number.isInteger(payload.sub) ||
+        payload.sub < 1
+        ) {
+            throw new UnauthorizedException('Token tidak valid');
+        }
         const user = await this.prisma.user.findUnique({
             where: { id_user: payload.sub },
             select: {

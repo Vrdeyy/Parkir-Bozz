@@ -5,14 +5,18 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { LogAktivitasService } from '../log-aktivitas/log-aktivitas.service.js';
 import { LoginDto } from './dto/login.dto.js';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
-  ) {}
+    private readonly configService: ConfigService,
+    private readonly logAktivitasService: LogAktivitasService,
+) {}
 
   async login(dto: LoginDto) {
     const user = await this.prisma.user.findUnique({
@@ -47,10 +51,18 @@ export class AuthService {
     const accessToken =
       await this.jwtService.signAsync(payload);
 
+    // Catat login ke log aktivitas (fire-and-forget)
+    this.logAktivitasService
+      .create(user.id_user, `LOGIN [${user.role}] ${user.username}`)
+      .catch(() => { /* gagal logging tidak boleh menggagalkan login */ });
+
     return {
       access_token: accessToken,
       token_type: 'Bearer',
-      expires_in: process.env.JWT_EXPIRES_IN ?? '15m',
+      expires_in: this.configService.get<string>(
+    'JWT_EXPIRES_IN',
+    '15m',
+    ),
       user: {
         id_user: user.id_user,
         nama_lengkap: user.nama_lengkap,

@@ -9,6 +9,8 @@ import { AuthService } from './auth.service.js';
 import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
 import { RolesGuard } from './guards/roles.guard.js';
 import { JwtStrategy } from './strategies/jwt.strategy.js';
+import { SignOptions } from 'jsonwebtoken';
+import { LogAktivitasService } from '../log-aktivitas/log-aktivitas.service.js';
 
 @Module({
   imports: [
@@ -23,7 +25,10 @@ import { JwtStrategy } from './strategies/jwt.strategy.js';
       useFactory: (config: ConfigService) => ({
         secret: config.getOrThrow<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: '15m',
+            expiresIn: config.get<string>(
+                'JWT_EXPIRES_IN',
+                '15m',
+            ) as SignOptions['expiresIn'],
         },
       }),
     }),
@@ -34,6 +39,7 @@ import { JwtStrategy } from './strategies/jwt.strategy.js';
     JwtStrategy,
     JwtAuthGuard,
     RolesGuard,
+    LogAktivitasService,
   ],
   exports: [AuthService, JwtAuthGuard, RolesGuard],
 })
