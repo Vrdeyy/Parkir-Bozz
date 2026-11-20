@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 
 export class MidtransWebhookDto {
@@ -18,7 +18,7 @@ export class MidtransWebhookDto {
     @IsString()
     transaction_status!: string;
 
-    @ApiProperty({ example: 'qris', description: 'Metode pembayaran (qris)' })
+    @ApiPropertyOptional({ example: 'qris', description: 'Metode pembayaran (qris)' })
     @IsOptional()
     @IsString()
     payment_type?: string;
@@ -27,8 +27,54 @@ export class MidtransWebhookDto {
     @IsString()
     signature_key!: string;
 
-    @ApiProperty({ example: '2026-11-15 19:30:00', description: 'Waktu transaksi settlement' })
+    @ApiPropertyOptional({ example: '2026-11-15 19:30:00', description: 'Waktu transaksi settlement' })
     @IsOptional()
     @IsString()
     settlement_time?: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsString()
+    transaction_type?: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsString()
+    transaction_time?: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsString()
+    transaction_id?: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsString()
+    status_message?: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsString()
+    merchant_id?: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsString()
+    fraud_status?: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsString()
+    expiry_time?: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsString()
+    currency?: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    customer_details?: any;
+
+    [key: string]: any;
 }

@@ -40,6 +40,10 @@ export class MidtransService {
             : 'https://api.sandbox.midtrans.com';
     }
 
+    isProductionMode(): boolean {
+        return this.isProduction;
+    }
+
     /**
      * Membuat transaksi QRIS dinamis melalui Midtrans Core API
      */

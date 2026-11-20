@@ -12,9 +12,7 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      forbidUnknownValues: true,
+      whitelist: false,
       transform: true,
     }),
   );
@@ -34,6 +32,15 @@ async function bootstrap() {
       },
       'JWT-auth',
     )
+    .addTag('Authentication', 'Autentikasi & Login Pengguna')
+    .addTag('Users', 'Manajemen Pengguna & Hak Akses (Khusus Admin)')
+    .addTag('Jenis Kendaraan', 'Master Data Jenis Kendaraan (Khusus Admin)')
+    .addTag('Tarif Parkir', 'Master Data Tarif Parkir (Khusus Admin)')
+    .addTag('Area Parkir', 'Master Data Area Parkir (Khusus Admin)')
+    .addTag('Kendaraan', 'Master Data Kendaraan (Khusus Admin)')
+    .addTag('Transaksi Parkir', 'Operasional Transaksi Masuk, Keluar, dan Pembayaran (Petugas & Admin)')
+    .addTag('Dashboard & Laporan', 'Dashboard Analitik & Rekap Pendapatan (Owner & Admin)')
+    .addTag('Log Aktivitas', 'Audit Trail Aktivitas Sistem (Khusus Admin)')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

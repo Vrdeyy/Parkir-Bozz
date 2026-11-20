@@ -9,6 +9,8 @@ import {
     Query,
     Req,
     UseGuards,
+    UsePipes,
+    ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
@@ -115,6 +117,7 @@ export class TransaksiController {
 
     @ApiOperation({ summary: 'Webhook Callback dari Midtrans (Public/No Auth)' })
     @Public()
+    @UsePipes(new ValidationPipe({ whitelist: false, forbidNonWhitelisted: false, transform: true }))
     @Post('webhook/midtrans')
     async midtransWebhook(@Body() dto: MidtransWebhookDto) {
         return this.transaksiService.handleMidtransWebhook(dto);
