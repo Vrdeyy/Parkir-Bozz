@@ -20,7 +20,6 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('API Parkir-Bos')
     .setDescription('Dokumentasi API Sistem Manajemen Parkir (Parkir-Bos)')
-    .setVersion('1.0')
     .addBearerAuth(
       {
         type: 'http',
@@ -33,11 +32,11 @@ async function bootstrap() {
       'JWT-auth',
     )
     .addTag('Authentication', 'Autentikasi & Login Pengguna')
-    .addTag('Users', 'Manajemen Pengguna & Hak Akses (Khusus Admin)')
+    .addTag('Manajemen User', 'Manajemen Pengguna & Hak Akses (Khusus Admin)')
     .addTag('Jenis Kendaraan', 'Master Data Jenis Kendaraan (Khusus Admin)')
     .addTag('Tarif Parkir', 'Master Data Tarif Parkir (Khusus Admin)')
     .addTag('Area Parkir', 'Master Data Area Parkir (Khusus Admin)')
-    .addTag('Kendaraan', 'Master Data Kendaraan (Khusus Admin)')
+    .addTag('Master Kendaraan', 'Master Data Kendaraan (Khusus Admin)')
     .addTag('Transaksi Parkir', 'Operasional Transaksi Masuk, Keluar, dan Pembayaran (Petugas & Admin)')
     .addTag('Dashboard & Laporan', 'Dashboard Analitik & Rekap Pendapatan (Owner & Admin)')
     .addTag('Log Aktivitas', 'Audit Trail Aktivitas Sistem (Khusus Admin)')
