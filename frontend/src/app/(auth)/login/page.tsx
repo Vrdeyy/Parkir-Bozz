@@ -28,12 +28,39 @@ export default function LoginPage() {
     nama_lengkap: string;
     role: string;
   } | null>(null);
+  const [introPhase, setIntroPhase] = useState<"drop" | "explode" | "done">("drop");
+
+  // 3D Particle shards untuk efek ledakan logo P (GPU-accelerated)
+  const explosionShards = React.useMemo(
+    () =>
+      Array.from({ length: 14 }, (_, i) => {
+        const angle = (i / 14) * Math.PI * 2;
+        const distance = 150 + (i % 3) * 65;
+        return {
+          id: i,
+          x: Math.cos(angle) * distance,
+          y: Math.sin(angle) * distance,
+          size: 14 + (i % 3) * 8,
+          rotX: (i % 2 === 0 ? 1 : -1) * (140 + i * 18),
+          rotY: (i % 3 === 0 ? 1 : -1) * (160 + i * 15),
+          isCube: i % 3 === 0,
+        };
+      }),
+    []
+  );
 
   useEffect(() => {
     const saved = localStorage.getItem("parkir_bozz_remember_username");
     if (saved) {
       setUsername(saved);
     }
+
+    const explodeTimer = setTimeout(() => setIntroPhase("explode"), 920);
+    const doneTimer = setTimeout(() => setIntroPhase("done"), 1850);
+    return () => {
+      clearTimeout(explodeTimer);
+      clearTimeout(doneTimer);
+    };
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -72,7 +99,7 @@ export default function LoginPage() {
 
       setTimeout(() => {
         router.push(targetPath);
-      }, 1450);
+      }, 2050);
     } catch (err: any) {
       const message =
         err.response?.data?.message ||
@@ -109,12 +136,151 @@ export default function LoginPage() {
         />
       </div>
 
-      {/* Login Card Utama */}
+      {/* INTRO ANIMASI 3D: LOGO P JATUH -> MELEDAK -> MASUK KE LOGIN */}
+      <AnimatePresence>
+        {introPhase !== "done" && (
+          <motion.div
+            key="intro-3d-overlay"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+            onClick={() => setIntroPhase("done")}
+            style={{ perspective: "1200px" }}
+            className="fixed inset-0 z-50 surface-ice flex items-center justify-center overflow-hidden cursor-pointer select-none"
+          >
+            {/* Bayangan 3D di Lantai saat Logo P jatuh */}
+            <motion.div
+              initial={{ scale: 0.25, opacity: 0 }}
+              animate={
+                introPhase === "drop"
+                  ? { scale: 1, opacity: 0.28 }
+                  : { scale: 2.6, opacity: 0 }
+              }
+              transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute w-28 h-7 rounded-full bg-blue-900/25 blur-md translate-y-20 will-change-transform"
+            />
+
+            {/* Shockwave Rings 3D saat Meledak */}
+            {introPhase === "explode" && (
+              <>
+                <motion.div
+                  initial={{ scale: 0.3, opacity: 0.85, rotateX: 65 }}
+                  animate={{ scale: 5.2, opacity: 0, rotateX: 65 }}
+                  transition={{ duration: 0.95, ease: [0.16, 1, 0.3, 1] }}
+                  className="absolute w-36 h-36 rounded-full border-[3px] border-blue-500/75 will-change-transform"
+                />
+                <motion.div
+                  initial={{ scale: 0.2, opacity: 0.75, rotateX: 65 }}
+                  animate={{ scale: 4.0, opacity: 0, rotateX: 65 }}
+                  transition={{ duration: 0.85, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+                  className="absolute w-32 h-32 rounded-full border-[3px] border-sky-300/85 will-change-transform"
+                />
+                {/* Kilatan Cahaya Ledakan */}
+                <motion.div
+                  initial={{ scale: 0.4, opacity: 0.8 }}
+                  animate={{ scale: 4.2, opacity: 0 }}
+                  transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                  className="absolute w-32 h-32 rounded-full bg-gradient-to-tr from-blue-500/80 via-sky-300/70 to-white will-change-transform"
+                />
+
+                {/* Pecahan Partikel 3D Berhamburan */}
+                {explosionShards.map((shard) => (
+                  <motion.div
+                    key={shard.id}
+                    initial={{ x: 0, y: 0, scale: 0.9, opacity: 0.95, rotateX: 0, rotateY: 0 }}
+                    animate={{
+                      x: shard.x,
+                      y: shard.y,
+                      scale: 0.15,
+                      opacity: 0,
+                      rotateX: shard.rotX,
+                      rotateY: shard.rotY,
+                    }}
+                    transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+                    style={{
+                      width: shard.size,
+                      height: shard.size,
+                      transformStyle: "preserve-3d",
+                    }}
+                    className={`absolute will-change-transform ${
+                      shard.isCube ? "rounded-lg" : "rounded-full"
+                    } bg-gradient-to-br from-white via-blue-400 to-indigo-600 border border-white/80 shadow-md`}
+                  />
+                ))}
+              </>
+            )}
+
+            {/* Logo P 3D yang Jatuh, Memantul, lalu Meledak */}
+            <motion.div
+              initial={{
+                y: -360,
+                scale: 1.45,
+                rotateX: 40,
+                rotateY: -35,
+                rotateZ: -12,
+                opacity: 0,
+              }}
+              animate={
+                introPhase === "drop"
+                  ? {
+                      y: 0,
+                      scale: 1,
+                      rotateX: 0,
+                      rotateY: 0,
+                      rotateZ: 0,
+                      opacity: 1,
+                    }
+                  : {
+                      scale: [1, 1.25, 0],
+                      rotateY: 180,
+                      rotateX: 20,
+                      opacity: [1, 0.9, 0],
+                    }
+              }
+              transition={
+                introPhase === "drop"
+                  ? {
+                      type: "spring",
+                      stiffness: 170,
+                      damping: 16,
+                      mass: 0.9,
+                    }
+                  : {
+                      duration: 0.42,
+                      ease: [0.22, 1, 0.36, 1],
+                    }
+              }
+              style={{ transformStyle: "preserve-3d" }}
+              className="relative z-10 w-28 h-28 rounded-[32px] neu-card p-3.5 flex items-center justify-center shadow-[0_25px_60px_rgba(37,99,235,0.4)] will-change-transform"
+            >
+              <div className="w-full h-full rounded-[22px] bg-gradient-to-br from-blue-400 via-blue-600 to-indigo-800 shadow-[0_12px_28px_rgba(37,99,235,0.5),inset_0_2px_6px_rgba(255,255,255,0.6)] flex items-center justify-center relative overflow-hidden">
+                <div className="absolute -top-5 -left-5 w-14 h-14 rounded-full bg-white/30 blur-sm" />
+                <span className="text-5xl font-black text-white tracking-tighter drop-shadow-[0_4px_10px_rgba(15,23,42,0.35)]">
+                  P
+                </span>
+                <span className="absolute bottom-2.5 right-2.5 w-5 h-1.5 rounded-full bg-amber-300 shadow" />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Login Card Utama (muncul halus dari ledakan 3D) */}
       <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: [0.21, 0.47, 0.32, 0.98] }}
-        className="relative z-10 w-full max-w-[400px]"
+        initial={{ opacity: 0, y: 20, scale: 0.85, rotateX: 14 }}
+        animate={
+          introPhase === "drop"
+            ? { opacity: 0, y: 20, scale: 0.85, rotateX: 14 }
+            : { opacity: 1, y: 0, scale: 1, rotateX: 0 }
+        }
+        transition={{
+          type: "spring",
+          stiffness: 150,
+          damping: 22,
+          mass: 0.85,
+        }}
+        style={{ perspective: "1200px" }}
+        className="relative z-10 w-full max-w-[400px] will-change-transform"
       >
         {/* 3D Squircle Parking Emblem */}
         <div className="flex justify-center mb-6">
@@ -236,11 +402,13 @@ export default function LoginPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             className="fixed inset-0 z-50 surface-ice flex flex-col items-center justify-center p-6 overflow-hidden"
           >
             <motion.div
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
               className="text-center mb-8"
             >
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 text-xs font-bold mb-3">
@@ -256,87 +424,165 @@ export default function LoginPage() {
             </motion.div>
 
             {/* Stage Jalan + Palang Parkir + Motor Lewat */}
-            <div className="relative w-full max-w-xl h-44 neu-card rounded-3xl overflow-hidden flex items-end px-8 pb-6">
-              {/* Background langit soft */}
-              <div className="absolute inset-0 bg-gradient-to-b from-blue-50/70 to-slate-100/60" />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.94, y: 14 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+              className="relative w-full max-w-xl h-48 neu-card rounded-3xl overflow-hidden flex items-end px-8 pb-6 will-change-transform"
+            >
+              {/* Background langit & awan soft */}
+              <div className="absolute inset-0 bg-gradient-to-b from-blue-50/85 via-sky-50/50 to-slate-100/70" />
+              <motion.div
+                animate={{ x: [0, -24, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute top-5 left-12 w-20 h-5 rounded-full bg-white/75 shadow-sm"
+              />
+              <motion.div
+                animate={{ x: [0, -18, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute top-9 right-20 w-14 h-4 rounded-full bg-white/65 shadow-sm"
+              />
 
               {/* Pos & Palang Pintu Parkir */}
-              <div className="relative z-10 flex items-end ml-auto mr-12 mb-1">
-                {/* Tiang Palang */}
-                <div className="w-5 h-20 rounded-t-lg bg-gradient-to-b from-blue-600 to-indigo-700 shadow-md flex flex-col items-center pt-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399]" />
+              <div className="relative z-10 flex items-end ml-auto mr-16 mb-1">
+                {/* Tiang Palang 3D */}
+                <div className="w-6 h-22 rounded-t-xl bg-gradient-to-b from-blue-500 via-blue-600 to-indigo-800 shadow-[0_8px_18px_rgba(37,99,235,0.35),inset_0_1px_2px_rgba(255,255,255,0.5)] flex flex-col items-center pt-2 pb-12">
+                  <motion.span
+                    initial={{ backgroundColor: "#f59e0b", boxShadow: "0 0 8px #f59e0b" }}
+                    animate={{ backgroundColor: "#34d399", boxShadow: "0 0 14px #34d399" }}
+                    transition={{ duration: 0.4, delay: 0.35 }}
+                    className="w-2.5 h-2.5 rounded-full"
+                  />
                 </div>
-                {/* Lengan Palang Terangkat */}
+                {/* Lengan Palang Terangkat Smooth */}
                 <motion.div
                   initial={{ rotate: 0 }}
-                  animate={{ rotate: -78 }}
-                  transition={{ duration: 0.45, ease: "easeOut" }}
+                  animate={{ rotate: -82 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 110,
+                    damping: 15,
+                    delay: 0.3,
+                  }}
                   style={{ transformOrigin: "left center" }}
-                  className="w-28 h-2.5 rounded-full bg-gradient-to-r from-rose-500 via-white to-rose-500 border border-slate-300 shadow -ml-1 mb-14"
+                  className="w-32 h-2.5 rounded-full bg-gradient-to-r from-rose-500 via-white to-rose-500 border border-slate-300/80 shadow-md -ml-1 mb-14 will-change-transform"
                 />
               </div>
 
-              {/* Aspal Jalan */}
-              <div className="absolute bottom-0 inset-x-0 h-8 bg-slate-800 border-t-2 border-slate-700 flex items-center justify-around px-6">
-                <span className="w-10 h-1 rounded-full bg-amber-300/70" />
-                <span className="w-10 h-1 rounded-full bg-amber-300/70" />
-                <span className="w-10 h-1 rounded-full bg-amber-300/70" />
-                <span className="w-10 h-1 rounded-full bg-amber-300/70" />
+              {/* Aspal Jalan + Marka Jalan */}
+              <div className="absolute bottom-0 inset-x-0 h-9 bg-gradient-to-b from-slate-800 to-slate-900 border-t-2 border-slate-700 flex items-center justify-around px-6 overflow-hidden">
+                <span className="w-10 h-1 rounded-full bg-amber-300/75" />
+                <span className="w-10 h-1 rounded-full bg-amber-300/75" />
+                <span className="w-10 h-1 rounded-full bg-amber-300/75" />
+                <span className="w-10 h-1 rounded-full bg-amber-300/75" />
+                <span className="w-10 h-1 rounded-full bg-amber-300/75" />
               </div>
 
-              {/* Motor Melaju Dari Kiri Ke Kanan */}
+              {/* Motor Melaju Smooth: Mendekat -> Palang Buka -> Gas Lewat */}
               <motion.div
-                initial={{ x: -160 }}
-                animate={{ x: 640 }}
-                transition={{ duration: 1.15, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="absolute bottom-7 left-0 z-20 flex items-end gap-1"
+                initial={{ x: -130, y: 0, rotate: 1 }}
+                animate={{
+                  x: [-130, 175, 200, 680],
+                  y: [0, 0, -1, 0],
+                  rotate: [1, 0, -3.5, -1.5],
+                }}
+                transition={{
+                  duration: 1.75,
+                  times: [0, 0.34, 0.46, 1],
+                  ease: ["easeOut", "easeInOut", [0.42, 0, 0.58, 1]],
+                }}
+                className="absolute bottom-8 left-0 z-20 flex items-end will-change-transform"
               >
-                {/* Speed Lines */}
-                <div className="flex flex-col gap-1.5 mb-3 mr-1">
-                  <span className="w-8 h-0.5 rounded-full bg-blue-500/70" />
-                  <span className="w-12 h-0.5 rounded-full bg-blue-400/50" />
-                  <span className="w-6 h-0.5 rounded-full bg-indigo-400/60" />
-                </div>
-
-                {/* SVG Motor Sport/Skuter Modern */}
-                <svg
-                  width="96"
-                  height="56"
-                  viewBox="0 0 96 56"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="drop-shadow-md"
+                {/* Efek Angin / Speed Streaks */}
+                <motion.div
+                  initial={{ opacity: 0, scaleX: 0.4 }}
+                  animate={{ opacity: [0, 0.25, 0.9, 0.6], scaleX: [0.4, 0.6, 1.25, 1] }}
+                  transition={{ duration: 1.75, times: [0, 0.34, 0.6, 1] }}
+                  className="flex flex-col gap-1.5 mb-3.5 mr-1 origin-right"
                 >
-                  {/* Roda Belakang */}
-                  <circle cx="20" cy="42" r="10" fill="#1e293b" />
-                  <circle cx="20" cy="42" r="5" fill="#94a3b8" />
-                  {/* Roda Depan */}
-                  <circle cx="74" cy="42" r="10" fill="#1e293b" />
-                  <circle cx="74" cy="42" r="5" fill="#94a3b8" />
-                  {/* Bodi Motor Royal Blue */}
-                  <path
-                    d="M16 36 L34 26 L56 26 L68 18 L74 36 L62 40 L26 40 Z"
-                    fill="#2563eb"
-                  />
-                  <path
-                    d="M36 26 L54 26 L50 18 L34 20 Z"
-                    fill="#1e40af"
-                  />
-                  {/* Pengendara + Helm */}
-                  <circle cx="48" cy="11" r="6" fill="#0f172a" />
-                  <path
-                    d="M49 9 H54 V13 H49 Z"
-                    fill="#60a5fa"
-                  />
-                  <path
-                    d="M42 18 L52 17 L58 26 L44 28 Z"
-                    fill="#3b82f6"
-                  />
-                  {/* Lampu Depan */}
-                  <circle cx="73" cy="24" r="3" fill="#fde047" />
-                </svg>
+                  <span className="w-9 h-0.5 rounded-full bg-gradient-to-r from-transparent to-blue-500/80" />
+                  <span className="w-14 h-0.5 rounded-full bg-gradient-to-r from-transparent to-sky-400/75" />
+                  <span className="w-7 h-0.5 rounded-full bg-gradient-to-r from-transparent to-indigo-400/70" />
+                </motion.div>
+
+                {/* SVG Motor Sport Modern 3D-Shaded dengan Roda Berputar */}
+                <div className="relative flex items-center">
+                  <svg
+                    width="112"
+                    height="62"
+                    viewBox="0 0 112 62"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="drop-shadow-[0_6px_10px_rgba(15,23,42,0.28)]"
+                  >
+                    <defs>
+                      <linearGradient id="motoBody" x1="20" y1="18" x2="88" y2="44" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stopColor="#60a5fa" />
+                        <stop offset="50%" stopColor="#2563eb" />
+                        <stop offset="100%" stopColor="#1e3a8a" />
+                      </linearGradient>
+                      <linearGradient id="riderJacket" x1="42" y1="14" x2="64" y2="32" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stopColor="#3b82f6" />
+                        <stop offset="100%" stopColor="#1d4ed8" />
+                      </linearGradient>
+                    </defs>
+
+                    {/* Knalpot */}
+                    <path d="M18 40 L36 37 L38 41 L20 44 Z" fill="#64748b" />
+
+                    {/* Roda Belakang Berputar */}
+                    <motion.g
+                      animate={{ rotate: 1080 }}
+                      transition={{ duration: 1.75, ease: "easeInOut" }}
+                      style={{ transformOrigin: "26px 46px" }}
+                    >
+                      <circle cx="26" cy="46" r="11" fill="#0f172a" />
+                      <circle cx="26" cy="46" r="6.5" fill="#cbd5e1" />
+                      <line x1="26" y1="39.5" x2="26" y2="52.5" stroke="#475569" strokeWidth="1.5" />
+                      <line x1="19.5" y1="46" x2="32.5" y2="46" stroke="#475569" strokeWidth="1.5" />
+                      <circle cx="26" cy="46" r="2.2" fill="#2563eb" />
+                    </motion.g>
+
+                    {/* Roda Depan Berputar */}
+                    <motion.g
+                      animate={{ rotate: 1080 }}
+                      transition={{ duration: 1.75, ease: "easeInOut" }}
+                      style={{ transformOrigin: "84px 46px" }}
+                    >
+                      <circle cx="84" cy="46" r="11" fill="#0f172a" />
+                      <circle cx="84" cy="46" r="6.5" fill="#cbd5e1" />
+                      <line x1="84" y1="39.5" x2="84" y2="52.5" stroke="#475569" strokeWidth="1.5" />
+                      <line x1="77.5" y1="46" x2="90.5" y2="46" stroke="#475569" strokeWidth="1.5" />
+                      <circle cx="84" cy="46" r="2.2" fill="#2563eb" />
+                    </motion.g>
+
+                    {/* Shock Depan */}
+                    <path d="M72 23 L84 46" stroke="#94a3b8" strokeWidth="3.5" strokeLinecap="round" />
+
+                    {/* Bodi Motor Sleek */}
+                    <path
+                      d="M16 34 C22 29 36 28 48 28 L68 20 C75 20 82 25 84 34 L70 43 L32 43 Z"
+                      fill="url(#motoBody)"
+                    />
+                    {/* Jok & Tangki */}
+                    <path d="M32 29 C38 25 48 26 54 29 L48 33 L30 33 Z" fill="#0f172a" />
+                    {/* Windshield */}
+                    <path d="M68 20 L77 15 L79 22 Z" fill="#bae6fd" opacity="0.85" />
+
+                    {/* Pengendara + Helm */}
+                    <path d="M44 19 C49 16 57 18 62 26 L51 30 L42 26 Z" fill="url(#riderJacket)" />
+                    <path d="M56 22 L68 23" stroke="#1e293b" strokeWidth="3" strokeLinecap="round" />
+                    <circle cx="53" cy="12" r="6.5" fill="#0f172a" />
+                    <path d="M54 9.5 H60 C60 12.5 58 14 54 14 Z" fill="#38bdf8" />
+
+                    {/* Lampu Depan */}
+                    <circle cx="83" cy="27" r="3" fill="#fde047" />
+                  </svg>
+                  {/* Sorot Lampu Depan */}
+                  <div className="w-20 h-7 -ml-5 mb-2 rounded-r-full bg-gradient-to-r from-amber-200/50 to-transparent pointer-events-none" />
+                </div>
               </motion.div>
-            </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
