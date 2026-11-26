@@ -30,14 +30,16 @@ export class JenisKendaraanController {
         private readonly jenisKendaraanService: JenisKendaraanService,
     ) { }
 
-    @ApiOperation({ summary: 'Mendapatkan semua jenis kendaraan (Khusus Admin)' })
+    @ApiOperation({ summary: 'Mendapatkan semua jenis kendaraan (Admin, Petugas)' })
     @Get()
+    @Roles(Role.admin, Role.petugas)
     findAll() {
         return this.jenisKendaraanService.findAll();
     }
 
-    @ApiOperation({ summary: 'Mendapatkan detail jenis kendaraan berdasarkan ID (Khusus Admin)' })
+    @ApiOperation({ summary: 'Mendapatkan detail jenis kendaraan berdasarkan ID (Admin, Petugas)' })
     @Get(':id')
+    @Roles(Role.admin, Role.petugas)
     findOne(@Param('id', ParseIntPipe) id: number) {
         return this.jenisKendaraanService.findOne(id);
     }

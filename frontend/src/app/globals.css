@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-950 text-slate-100 antialiased selection:bg-blue-600 selection:text-white;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Tactile 3D Buttons */
+.btn-3d {
+  @apply relative inline-flex items-center justify-center font-semibold transition-all duration-75 select-none active:translate-y-1;
+}
+
+.btn-3d-blue {
+  @apply bg-blue-600 text-white border-b-4 border-blue-800 hover:bg-blue-500 active:border-b-0 active:mt-1;
+}
+
+.btn-3d-emerald {
+  @apply bg-emerald-600 text-white border-b-4 border-emerald-800 hover:bg-emerald-500 active:border-b-0 active:mt-1;
+}
+
+.btn-3d-amber {
+  @apply bg-amber-500 text-slate-950 border-b-4 border-amber-700 hover:bg-amber-400 active:border-b-0 active:mt-1;
+}
+
+.btn-3d-rose {
+  @apply bg-rose-600 text-white border-b-4 border-rose-800 hover:bg-rose-500 active:border-b-0 active:mt-1;
+}
+
+.btn-3d-slate {
+  @apply bg-slate-800 text-slate-100 border-b-4 border-slate-950 hover:bg-slate-700 active:border-b-0 active:mt-1;
+}
+
+/* Card tactile 3D edge */
+.card-tactile {
+  @apply bg-slate-900 border border-slate-800 rounded-xl shadow-tactile transition-all duration-150;
+}
+
+.card-tactile-hover {
+  @apply bg-slate-900 border border-slate-800 rounded-xl shadow-tactile hover:-translate-y-0.5 hover:shadow-tactile-lg transition-all duration-150;
+}
+
+/* Soft-3D Ice-Blue & Royal-Blue Neumorphic Surfaces */
+.surface-ice {
+  background: linear-gradient(145deg, #f5f8ff 0%, #e7eefb 100%);
+}
+
+.neu-card {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    10px 10px 28px rgba(163, 184, 218, 0.28),
+    -8px -8px 22px rgba(255, 255, 255, 0.92),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.neu-inset {
+  background: #f2f6fd;
+  border: 1px solid rgba(203, 217, 238, 0.85);
+  box-shadow:
+    inset 3px 3px 8px rgba(176, 196, 224, 0.35),
+    inset -3px -3px 8px rgba(255, 255, 255, 0.95);
+}
+
+.btn-3d-royal {
+  background: linear-gradient(135deg, #3b66f5 0%, #2563eb 55%, #4f46e5 100%);
+  box-shadow:
+    0 12px 24px -6px rgba(37, 99, 235, 0.48),
+    0 4px 0 0 #1d4ed8,
+    inset 0 1px 1px rgba(255, 255, 255, 0.45);
+  @apply text-white font-bold transition-all duration-150 select-none active:translate-y-0.5;
+}
+
+.btn-3d-royal:hover {
+  filter: brightness(1.06);
+  box-shadow:
+    0 16px 28px -6px rgba(37, 99, 235, 0.58),
+    0 4px 0 0 #1d4ed8,
+    inset 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+/* Printable thermal receipt layout */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #thermal-print-area, #thermal-print-area * {
+    visibility: visible;
+  }
+  #thermal-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm;
+    margin: 0;
+    padding: 8px;
+    background: white !important;
+    color: black !important;
+  }
+}

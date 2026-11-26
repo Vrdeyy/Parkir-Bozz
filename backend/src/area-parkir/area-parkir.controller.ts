@@ -34,14 +34,16 @@ export class AreaParkirController {
         private readonly areaParkirService: AreaParkirService,
     ) { }
 
-    @ApiOperation({ summary: 'Mendapatkan seluruh daftar area parkir (Khusus Admin)' })
+    @ApiOperation({ summary: 'Mendapatkan seluruh daftar area parkir (Admin, Petugas, Owner)' })
     @Get()
+    @Roles(Role.admin, Role.petugas, Role.owner)
     findAll() {
         return this.areaParkirService.findAll();
     }
 
-    @ApiOperation({ summary: 'Mendapatkan detail area parkir berdasarkan ID (Khusus Admin)' })
+    @ApiOperation({ summary: 'Mendapatkan detail area parkir berdasarkan ID (Admin, Petugas, Owner)' })
     @Get(':id')
+    @Roles(Role.admin, Role.petugas, Role.owner)
     findOne(@Param('id', ParseIntPipe) id: number) {
         return this.areaParkirService.findOne(id);
     }
